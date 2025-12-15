@@ -11,7 +11,6 @@ import com.puntacana.auth_service.dto.AdminLoginRequest;
 import com.puntacana.auth_service.dto.AdminLoginResponse;
 import com.puntacana.auth_service.dto.GuestLoginRequest;
 import com.puntacana.auth_service.dto.GuestLoginResponse;
-import com.puntacana.auth_service.repository.GuestAccessRepository;
 import com.puntacana.auth_service.repository.UserRepository;
 import com.puntacana.auth_service.security.JwtTokenProvider;
 
@@ -22,35 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final GuestAccessRepository guestAccessRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-       /*public GuestLoginResponse loginGuest(GuestLoginRequest request) {
-        GuestAccess guest = guestAccessRepository
-            .findFirstByRoomNumberAndAccessToken(
-                    request.getRoomNumber(),
-                    request.getAccessToken()
-            )
-            .orElseThrow(() -> new RuntimeException("Credenciales de huésped inválidas o expiradas"));
-
-    String token = jwtTokenProvider.generateToken(
-            "guest:" + guest.getRoomNumber(),
-            Map.of(
-                    "type", "GUEST",
-                    "roomNumber", guest.getRoomNumber(),
-                    "guestName", guest.getGuestName()
-            )
-    );
-
-    Instant expiresAt = jwtTokenProvider.getExpirationInstant();
-
-    return GuestLoginResponse.builder()
-            .token(token)
-            .roomNumber(guest.getRoomNumber())
-            .guestName(guest.getGuestName())
-            .expiresAt(expiresAt)
-            .build();
-}*/
 
 public GuestLoginResponse loginGuest(GuestLoginRequest request) {
 

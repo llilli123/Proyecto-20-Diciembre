@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Eventos del resort - Huésped</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="main-wrapper">
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h1 class="card-title">Eventos disponibles</h1>
+          <p class="card-subtitle" id="guest-info">
+            Cargando datos del huésped...
+          </p>
+        </div>
+        <button class="btn btn-outline" id="logout-btn">Cerrar sesión</button>
+      </div>
+
+      <div id="events-container">
+        <p class="card-subtitle">Cargando eventos...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/guest-events.js"></script>
+</body>
+</html>
