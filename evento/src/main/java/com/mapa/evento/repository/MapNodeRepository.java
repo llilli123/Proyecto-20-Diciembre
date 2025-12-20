@@ -12,4 +12,5 @@ public interface MapNodeRepository extends JpaRepository<MapNode, Long> {
     // IMPORTANTE: fíjate que dice "extends JpaRepository<MapNode, Long>"
     
     Optional<MapNode> findByLinkedIdAndType(String linkedId, String type);
+    
 }

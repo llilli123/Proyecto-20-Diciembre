@@ -6,17 +6,22 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import com.puntacana.notification_service.dto.CreateNotificationRequest;
 import com.puntacana.notification_service.model.Notification;
 import com.puntacana.notification_service.repository.NotificationRepository;
 
-import lombok.RequiredArgsConstructor;
+
 
 @Service
-@RequiredArgsConstructor
+
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
     @Transactional
     public Notification createNotification(CreateNotificationRequest request) {
@@ -51,4 +56,9 @@ public class NotificationService {
         notification.setReadFlag(true);
         notificationRepository.save(notification);
     }
+
+    @Transactional(readOnly = true)
+    public List<Notification> getByTargetAndReference(String target, String ref) {
+    return notificationRepository.findByTargetAndTargetReference(target, ref);
+}
 }

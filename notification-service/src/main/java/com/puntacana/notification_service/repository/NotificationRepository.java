@@ -11,4 +11,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByTargetAndReadFlagFalse(String target);
 
     List<Notification> findByTarget(String target);
+
+    List<Notification> findByTargetAndTargetReference(String target, String targetReference);
 }

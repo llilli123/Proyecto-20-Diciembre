@@ -70,4 +70,7 @@ public class MapController {
         mapNodeRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
+    
+
 }

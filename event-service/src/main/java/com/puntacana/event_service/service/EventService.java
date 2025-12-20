@@ -1,5 +1,14 @@
 package com.puntacana.event_service.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.puntacana.event_service.domain.Event;
 import com.puntacana.event_service.domain.EventAttendance;
 import com.puntacana.event_service.domain.EventStatus;
@@ -10,20 +19,19 @@ import com.puntacana.event_service.dto.MyEventResponse;
 import com.puntacana.event_service.dto.UpdateEventRequest;
 import com.puntacana.event_service.repository.EventAttendanceRepository;
 import com.puntacana.event_service.repository.EventRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final EventAttendanceRepository attendanceRepository;
+    private final EventAttendanceRepository attendanceRepository; 
 
+    public EventService(EventRepository eventRepository,
+                        EventAttendanceRepository attendanceRepository) {
+        this.eventRepository = eventRepository;
+        this.attendanceRepository = attendanceRepository;
+    }
     // ADMIN: crear
     @Transactional
     public EventResponse createEvent(CreateEventRequest request) {
@@ -109,41 +117,45 @@ public class EventService {
     @Transactional
     public void joinEvent(Long eventId, JoinEventRequest request) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Evento no encontrado"));
 
-        if (event.getStatus() == EventStatus.CANCELLED) {
-            throw new RuntimeException("El evento está cancelado");
-        }
+    if (event.getStatus() == EventStatus.CANCELLED) {
+        throw new ResponseStatusException(CONFLICT, "El evento está cancelado");
+    }
 
-        if (event.getStatus() == EventStatus.FULL) {
-            throw new RuntimeException("El evento está lleno");
-        }
+    if (event.getStatus() == EventStatus.FULL) {
+        throw new ResponseStatusException(CONFLICT, "El evento está lleno");
+    }
 
-        long occupied = attendanceRepository.countByEventAndCancelledFalse(event);
-        if (occupied >= event.getCapacity()) {
-            event.setStatus(EventStatus.FULL);
-            throw new RuntimeException("Capacidad completa");
-        }
+    long occupied = attendanceRepository.countByEventAndCancelledFalse(event);
 
-        attendanceRepository.findByEventAndRoomNumberAndCancelledFalse(event, request.getRoomNumber())
-                .ifPresent(a -> {
-                    throw new RuntimeException("El huésped ya está inscrito en este evento");
-                });
+    if (occupied >= event.getCapacity()) {
+        event.setStatus(EventStatus.FULL);
+        // opcional: persistir el status
+        eventRepository.save(event);
+        throw new ResponseStatusException(CONFLICT, "Capacidad completa");
+    }
 
-        EventAttendance attendance = EventAttendance.builder()
-                .event(event)
-                .roomNumber(request.getRoomNumber())
-                .guestName(request.getGuestName())
-                .joinedAt(LocalDateTime.now())
-                .cancelled(false)
-                .build();
+    attendanceRepository.findByEventAndRoomNumberAndCancelledFalse(event, request.getRoomNumber())
+            .ifPresent(a -> {
+                throw new ResponseStatusException(CONFLICT, "Ya está inscrito");
+            });
 
-        attendanceRepository.save(attendance);
+    EventAttendance attendance = EventAttendance.builder()
+            .event(event)
+            .roomNumber(request.getRoomNumber())
+            .guestName(request.getGuestName())
+            .joinedAt(LocalDateTime.now())
+            .cancelled(false)
+            .build();
 
-        long newOccupied = occupied + 1;
-        if (newOccupied >= event.getCapacity()) {
-            event.setStatus(EventStatus.FULL);
-        }
+    attendanceRepository.save(attendance);
+
+    long newOccupied = occupied + 1;
+    if (newOccupied >= event.getCapacity()) {
+        event.setStatus(EventStatus.FULL);
+        eventRepository.save(event);
+    }
     }
 
     // HUÉSPED: salirse

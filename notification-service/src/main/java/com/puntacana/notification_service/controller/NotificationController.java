@@ -16,14 +16,18 @@ import com.puntacana.notification_service.model.Notification;
 import com.puntacana.notification_service.service.NotificationService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/notifications")
-@RequiredArgsConstructor
+
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -46,4 +50,9 @@ public class NotificationController {
     public void markAsRead(@PathVariable Long id) {
         notificationService.markAsRead(id);
     }
+
+    @GetMapping("/room/{roomNumber}")
+    public List<Notification> getByRoom(@PathVariable String roomNumber) {
+    return notificationService.getByTargetAndReference("ROOM", roomNumber);
+}
 }

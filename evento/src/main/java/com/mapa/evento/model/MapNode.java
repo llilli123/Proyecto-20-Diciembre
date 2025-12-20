@@ -1,5 +1,6 @@
 package com.mapa.evento.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,14 +11,23 @@ import jakarta.persistence.Table;
 @Table(name = "map_nodes")
 public class MapNode {
 
-    @Id
+     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "label")
     private String label;
+
+    @Column(name = "posx")     // <-- IMPORTANTE
     private int posX;
+
+    @Column(name = "posy")     // <-- IMPORTANTE
     private int posY;
+
+    @Column(name = "type")
     private String type;
+
+    @Column(name = "linked_id") // <-- IMPORTANTE
     private String linkedId;
 
     // Constructor vacío (obligatorio para JPA)
